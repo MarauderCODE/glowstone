@@ -826,7 +826,25 @@ local function uiThread()
                     local playerPed = GetPlayerPed(GetPlayerFromServerId(selectedPlayer))
                     local pos = GetEntityCoords(playerPed)
 					for i = 1, 10 do
-                    local vehicle = CreateVehicle(inputText, pos.x, pos.y, pos.z + 10.0, GetEntityHeading(playerPed), true, false)
+                        local vehicle = CreateVehicle(inputText, pos.x, pos.y, pos.z + 10.0, GetEntityHeading(playerPed), true, true)  -- Make it networked by setting both last flags to true
+
+                        if DoesEntityExist(vehicle) then
+                            -- Set the vehicle as mission entity to prevent it from being deleted
+                            SetEntityAsMissionEntity(vehicle, true, true)
+                            
+                            -- Ensure the player has control over the vehicle's network entity
+                            NetworkRegisterEntityAsNetworked(vehicle)
+                            local networkId = NetworkGetNetworkIdFromEntity(vehicle)
+                            SetNetworkIdCanMigrate(networkId, true)
+                            SetNetworkIdExistsOnAllMachines(networkId, true)
+                            
+                            -- Optionally, you could give control to the current client
+                            NetworkRequestControlOfEntity(vehicle)
+                    
+                            -- Set additional properties if necessary
+                            SetVehicleEngineOn(vehicle, true, true, false)
+                        end
+                        
 					end
                     SetEntityAsNoLongerNeeded(vehicle)
                 end)               
