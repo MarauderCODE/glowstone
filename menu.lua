@@ -765,10 +765,6 @@ local function uiThread()
 
                
             end
-            if WarMenu.Button('Spawn Adder') then
-                -- Spawn vehicle in a separate thread
-                
-            end
             if WarMenu.Button('Clone ped') then
                 
                 Citizen.CreateThread(function()
