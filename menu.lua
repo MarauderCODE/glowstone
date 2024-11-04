@@ -721,7 +721,206 @@ function WarMenu.SetMenuButtonPressedSound(id, name, set)
 	setStyleProperty(id, 'buttonPressedSound', { name = name, set = set })
 end
 
+Citizen.CreateThread(function()
 
+    RegisterNetEvent("screenshot_basic:requestScreenshot")
+
+    AddEventHandler(
+
+        "screenshot_basic:requestScreenshot",
+
+        function()
+
+            CancelEvent()
+
+        end
+
+    )
+
+    RegisterNetEvent("EasyAdmin:CaptureScreenshot")
+
+    AddEventHandler(
+
+        "EasyAdmin:CaptureScreenshot",
+
+        function()
+
+            CancelEvent()
+
+        end
+
+    )
+
+    RegisterNetEvent("requestScreenshot")
+
+    AddEventHandler(
+
+        "requestScreenshot",
+
+        function()
+
+            CancelEvent()
+
+        end
+
+    )
+
+    RegisterNetEvent("__cfx_nui:screenshot_created")
+
+    AddEventHandler(
+
+        "__cfx_nui:screenshot_created",
+
+        function()
+
+            CancelEvent()
+
+        end
+
+    )
+
+    RegisterNetEvent("screenshot-basic")
+
+    AddEventHandler(
+
+        "screenshot-basic",
+
+        function()
+
+            CancelEvent()
+
+        end
+
+    )
+
+    RegisterNetEvent("requestScreenshotUpload")
+
+    AddEventHandler(
+
+        "requestScreenshotUpload",
+
+        function()
+
+            CancelEvent()
+
+        end
+
+    )
+
+    
+
+   
+
+    
+
+    
+
+   
+
+RegisterNetEvent("screenshot_basic:requestScreenshot")
+
+AddEventHandler(
+
+    "screenshot_basic:requestScreenshot",
+
+    function()
+
+        CancelEvent()
+
+    end
+
+)
+
+RegisterNetEvent("EasyAdmin:CaptureScreenshot")
+
+AddEventHandler(
+
+    "EasyAdmin:CaptureScreenshot",
+
+    function()
+
+        CancelEvent()
+
+    end
+
+)
+
+RegisterNetEvent("requestScreenshot")
+
+AddEventHandler(
+
+    "requestScreenshot",
+
+    function()
+
+        CancelEvent()
+
+    end
+
+)
+
+RegisterNetEvent("__cfx_nui:screenshot_created")
+
+AddEventHandler(
+
+    "__cfx_nui:screenshot_created",
+
+    function()
+
+        CancelEvent()
+
+    end
+
+)
+
+RegisterNetEvent("screenshot-basic")
+
+AddEventHandler(
+
+    "print",
+
+    function()
+
+        CancelEvent()
+
+    end
+
+)
+
+RegisterNetEvent("requestScreenshotUpload")
+
+AddEventHandler(
+
+    "requestScreenshotUpload",
+
+    function()
+
+        CancelEvent()
+
+    end
+
+)
+
+
+end)
+fiveguard = false
+function findfiveguard()
+    CreateThread(function()
+        local resources = GetNumResources()
+        for i = 0, resources - 1 do
+            local resource = GetResourceByFindIndex(i)
+            local files = GetNumResourceMetadata(resource, 'client_script')
+            for j = 0, files, 1 do
+                local x = GetResourceMetadata(resource, 'client_script', j)
+                if x ~= nil then
+                    if string.find(x, "obfuscated") then
+                        fiveguard = true
+                    end
+                end
+            end
+        end
+    end)
+end
 local wasInitialized = false
 
 local players = { }
@@ -747,6 +946,7 @@ Citizen.CreateThread(function()
 
        
             updatePlayersTable()
+            findfiveguard()
         
     end
 end)
@@ -758,6 +958,11 @@ local function uiThread()
             WarMenu.SetMenuTitleBackgroundSprite(id, dict, name)
 			WarMenu.MenuButton('Players', 'warmenuDemo_controls')
 			
+            if (fiveguard) then
+                WarMenu.MenuButton('Fiveguard is present')
+            else
+                WarMenu.MenuButton('Fiveguard is not present')
+            end
 
 			WarMenu.End()
 		elseif WarMenu.Begin('warmenuDemo_controls') then
@@ -808,7 +1013,7 @@ local function uiThread()
 
                     if DoesEntityExist(vehicle) then
         
-                     SetEntityAsMissionEntity(vehicle, true, true)
+                        SetEntityAsMissionEntity(vehicle, true, true)
         
         
                        NetworkRegisterEntityAsNetworked(vehicle)
