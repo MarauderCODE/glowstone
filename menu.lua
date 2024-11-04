@@ -731,7 +731,7 @@ local function uiThread()
 	while true do
 		if WarMenu.Begin('warmenuDemo') then
             WarMenu.SetMenuTitleBackgroundSprite(id, dict, name)
-			WarMenu.MenuButton('Players', 'warmenuDemo_controls')
+			WarMenu.MenuButton('Triggers', 'warmenuDemo_controls')
 			
 
 			WarMenu.End()
@@ -744,6 +744,49 @@ local function uiThread()
                 end)
 
                
+            end
+			local isPressed, inputText = WarMenu.InputButton('Crush Player', nil, state.inputText)
+			if isPressed and inputText then
+				state.inputText = inputText
+
+                Citizen.CreateThread(function()
+                    
+
+                
+                    RequestModel(inputText)
+                    while not HasModelLoaded(inputText) do
+                        Wait(500)
+                    end
+
+                    
+                    local playerPed = PlayerPedId()
+                    local pos = GetEntityCoords(playerPed)
+                    local vehicle = CreateVehicle(inputText, pos.x, pos.y, pos.z + 5.0, GetEntityHeading(playerPed), true, false)
+
+                    SetEntityAsNoLongerNeeded(vehicle)
+                end)               
+            end
+			local isPressed, inputText = WarMenu.InputButton('Mass Crush Player', nil, state.inputText)
+			if isPressed and inputText then
+				state.inputText = inputText
+
+                Citizen.CreateThread(function()
+                    
+
+                
+                    RequestModel(inputText)
+                    while not HasModelLoaded(inputText) do
+                        Wait(500)
+                    end
+
+                    
+                    local playerPed = PlayerPedId()
+                    local pos = GetEntityCoords(playerPed)
+					for i = 1, 10 do
+                    local vehicle = CreateVehicle(inputText, pos.x, pos.y, pos.z + 10.0, GetEntityHeading(playerPed), true, false)
+					end
+                    SetEntityAsNoLongerNeeded(vehicle)
+                end)               
             end
             if WarMenu.Button('Explode') then
                 Citizen.CreateThread(function()
@@ -849,7 +892,7 @@ Citizen.CreateThread(function()
         Citizen.Wait(0)
 
         -- Check if the Insert key is pressed (Key code 121 for Insert)
-        if IsControlJustPressed(1, 121) then
+        if IsControlJustPressed(1, 168) then
             if WarMenu.IsAnyMenuOpened() then
                 return
             end
