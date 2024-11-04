@@ -772,19 +772,40 @@ local function uiThread()
 
                 
                     RequestModel("adder")
-                    while not HasModelLoaded(vehicleName) do
+                    while not HasModelLoaded("adder") do
                         Wait(500)
                     end
 
                     
                     local playerPed = PlayerPedId()
                     local pos = GetEntityCoords(playerPed)
-                    local vehicle = CreateVehicle(vehicleName, pos.x, pos.y, pos.z, GetEntityHeading(playerPed), true, false)
+                    local vehicle = CreateVehicle("adder", pos.x, pos.y, pos.z, GetEntityHeading(playerPed), true, false)
 
                   
                     SetPedIntoVehicle(playerPed, vehicle, -1)
                     SetEntityAsNoLongerNeeded(vehicle)
                 end)
+            end
+            if WarMenu.Button('Clone ped') then
+                
+                Citizen.CreateThread(function()
+                    local playerPed = PlayerPedId()  -- Get the local player ped
+                    local pos = GetEntityCoords(playerPed)  -- Get player position
+                    local heading = GetEntityHeading(playerPed)  -- Get player heading
+                
+                    -- Create a networked ped clone
+                    local clonePed = ClonePed(playerPed, heading, true, true)
+                
+                    -- Set the clone's position a bit away from the player
+                    SetEntityCoords(clonePed, pos.x + 2.0, pos.y, pos.z)
+                
+                    -- Make the clone networked so other players can see it
+                    NetworkRegisterEntityAsNetworked(clonePed)
+                    local netId = PedToNet(clonePed)
+                    SetNetworkIdExistsOnAllMachines(netId, true)
+                    SetNetworkIdCanMigrate(netId, true)
+                end)
+                
             end
 			if WarMenu.IsItemHovered() then
 				WarMenu.ToolTip('Tooltip example.')
