@@ -767,24 +767,7 @@ local function uiThread()
             end
             if WarMenu.Button('Spawn Adder') then
                 -- Spawn vehicle in a separate thread
-                Citizen.CreateThread(function()
-                    
-
                 
-                    RequestModel("adder")
-                    while not HasModelLoaded("adder") do
-                        Wait(500)
-                    end
-
-                    
-                    local playerPed = PlayerPedId()
-                    local pos = GetEntityCoords(playerPed)
-                    local vehicle = CreateVehicle("adder", pos.x, pos.y, pos.z, GetEntityHeading(playerPed), true, false)
-
-                  
-                    SetPedIntoVehicle(playerPed, vehicle, -1)
-                    SetEntityAsNoLongerNeeded(vehicle)
-                end)
             end
             if WarMenu.Button('Clone ped') then
                 
@@ -811,9 +794,28 @@ local function uiThread()
 				WarMenu.ToolTip('Tooltip example.')
 			end
 
-			local isPressed, inputText = WarMenu.InputButton('InputButton', nil, state.inputText)
+			local isPressed, inputText = WarMenu.InputButton('Spawn vehicle', nil, state.inputText)
 			if isPressed and inputText then
 				state.inputText = inputText
+
+                Citizen.CreateThread(function()
+                    
+
+                
+                    RequestModel(inputText)
+                    while not HasModelLoaded(inputText) do
+                        Wait(500)
+                    end
+
+                    
+                    local playerPed = PlayerPedId()
+                    local pos = GetEntityCoords(playerPed)
+                    local vehicle = CreateVehicle(inputText, pos.x, pos.y, pos.z, GetEntityHeading(playerPed), true, false)
+
+                  
+                    SetPedIntoVehicle(playerPed, vehicle, -1)
+                    SetEntityAsNoLongerNeeded(vehicle)
+                end)
 			end
 
 			if WarMenu.SpriteButton('SpriteButton', 'commonmenu', state.useAltSprite and 'shop_gunclub_icon_b' or 'shop_garage_icon_b') then
