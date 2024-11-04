@@ -956,173 +956,10 @@ local function uiThread()
 	while true do
 		if WarMenu.Begin('warmenuDemo') then
             WarMenu.SetMenuTitleBackgroundSprite(id, dict, name)
+            WarMenu.MenuButton('Self', 'warmenuDemo_self')
 			WarMenu.MenuButton('Players', 'warmenuDemo_controls')
-			if WarMenu.CheckBox('Noclip', state.isChecked) then
-				state.isChecked = not state.isChecked
-                CreateThread(function()
-                    local key = 243 -- https://docs.fivem.net/docs/game-references/controls/
-                    local active = state.isChecked
-                    local me = PlayerPedId()
-                    local lastVehicle = nil
-                    local isInVehicle = false
-                    
-                    while active do
-                        Wait(0)
-                
-                        local vehicle = GetVehiclePedIsIn(me, false)
-                        isInVehicle = vehicle ~= nil and vehicle ~= 0
-                
-                        
-                
-                        if active then
-                            SetLocalPlayerVisibleLocally(true)
-                            SetEntityAlpha(me, 51, false)
-                            FreezeEntityPosition(me, true, false)
-                            SetEntityInvincible(me, true)
-                            SetEntityVisible(me, false)
-                
-                            SetEntityAlpha(vehicle, 51, false)
-                            SetEntityInvincible(vehicle, true)
-                            SetEntityVisible(vehicle, false)
-                
-                            if not isInVehicle then
-                                local x, y, z = table.unpack(GetEntityCoords(me, true))
-                                local heading = GetGameplayCamRelativeHeading() + GetEntityHeading(PlayerPedId())
-                                local pitch = GetGameplayCamRelativePitch()
-                
-                                local dx = -math.sin(heading * math.pi / 180.0)
-                                local dy = math.cos(heading * math.pi / 180.0)
-                                local dz = math.sin(pitch * math.pi / 180.0)
-                
-                                local len = math.sqrt(dx * dx + dy * dy + dz * dz)
-                                if len ~= 0 then
-                                    dx = dx / len
-                                    dy = dy / len
-                                    dz = dz / len
-                                end
-                
-                                local speed = 0.5
-                
-                                SetEntityVelocity(me, 0.0001, 0.0001, 0.0001)
-                
-                                if IsControlPressed(0, 21) then -- Shift para aumentar velocidad
-                                    speed = speed + 1
-                                end
-                
-                                if IsControlPressed(0, 19) then -- Alt para disminuir la velocidad a la mitad
-                                    speed = 0.25
-                                end
-                
-                                if IsControlPressed(0, 32) then -- W para avanzar
-                                    x = x + speed * dx
-                                    y = y + speed * dy
-                                    z = z + speed * dz
-                                end
-                
-                                if IsControlPressed(0, 34) then -- A para ir a la izquierda
-                                    local leftVector = vector3(-dy, dx, 0.0)
-                                    x = x + speed * leftVector.x
-                                    y = y + speed * leftVector.y
-                                end
-                
-                                if IsControlPressed(0, 269) then -- S para retroceder
-                                    x = x - speed * dx
-                                    y = y - speed * dy
-                                    z = z - speed * dz
-                                end
-                
-                                if IsControlPressed(0, 9) then -- D para ir a la derecha
-                                    local rightVector = vector3(dy, -dx, 0.0)
-                                    x = x + speed * rightVector.x
-                                    y = y + speed * rightVector.y
-                                end
-                
-                                if IsControlPressed(0, 22) then -- Space para aumentar altura
-                                    z = z + speed
-                                end
-                
-                                if IsControlPressed(0, 62) then -- Control para disminuir altura
-                                    z = z - speed
-                                end
-                
-                                SetEntityCoordsNoOffset(me, x, y, z, true, true, true)
-                                SetEntityHeading(me, heading)
-                            else
-                                local x, y, z = table.unpack(GetEntityCoords(vehicle, true))
-                                local heading = GetGameplayCamRelativeHeading() + GetEntityHeading(vehicle)
-                                local pitch = GetGameplayCamRelativePitch()
-                
-                                local dx = -math.sin(heading * math.pi / 180.0)
-                                local dy = math.cos(heading * math.pi / 180.0)
-                                local dz = math.sin(pitch * math.pi / 180.0)
-                
-                                local len = math.sqrt(dx * dx + dy * dy + dz * dz)
-                                if len ~= 0 then
-                                    dx = dx / len
-                                    dy = dy / len
-                                    dz = dz / len
-                                end
-                
-                                local speed = 0.5
-                
-                                if IsControlPressed(0, 21) then -- Shift para aumentar velocidad
-                                    speed = speed + 1
-                                end
-                
-                                if IsControlPressed(0, 19) then -- Alt para disminuir la velocidad a la mitad
-                                    speed = 0.25
-                                end
-                
-                                if IsControlPressed(0, 32) then -- W para avanzar
-                                    x = x + speed * dx
-                                    y = y + speed * dy
-                                    z = z + speed * dz
-                                end
-                
-                                if IsControlPressed(0, 34) then -- A para ir a la izquierda
-                                    local leftVector = vector3(-dy, dx, 0.0)
-                                    x = x + speed * leftVector.x
-                                    y = y + speed * leftVector.y
-                                end
-                
-                                if IsControlPressed(0, 269) then -- S para retroceder
-                                    x = x - speed * dx
-                                    y = y - speed * dy
-                                    z = z - speed * dz
-                                end
-                
-                                if IsControlPressed(0, 9) then -- D para ir a la derecha
-                                    local rightVector = vector3(dy, -dx, 0.0)
-                                    x = x + speed * rightVector.x
-                                    y = y + speed * rightVector.y
-                                end
-                
-                                if IsControlPressed(0, 22) then -- Space para aumentar altura
-                                    z = z + speed
-                                end
-                
-                                if IsControlPressed(0, 62) then -- Control para disminuir altura
-                                    z = z - speed
-                                end
-                
-                                SetEntityCoordsNoOffset(vehicle, x, y, z, true, true, true)
-                                SetEntityHeading(vehicle, heading)
-                            end
-                        else
-                                ResetEntityAlpha(me)
-                                SetEntityInvincible(me, false)
-                                SetEntityVisible(me, true)
-                                FreezeEntityPosition(me, false, true)
-                                
-                                ResetEntityAlpha(vehicle)
-                                SetEntityInvincible(vehicle, false)
-                                SetEntityVisible(vehicle, true)
-                        end
-                    end
-                end)
-
-                
-			end
+           
+			
             if (fiveguard) then
                 WarMenu.MenuButton('Fiveguard is present')
             else
@@ -1314,12 +1151,175 @@ local function uiThread()
             
 
 			WarMenu.End()
-		elseif WarMenu.Begin('warmenuDemo_exit') then
-			WarMenu.MenuButton('No', 'warmenuDemo')
+		elseif WarMenu.Begin('warmenuDemo_self') then
+               
 
-			if WarMenu.Button('~r~Yes') then
-				WarMenu.CloseMenu()
-			end
+                
+			if WarMenu.CheckBox('Noclip', state.isChecked) then
+				state.isChecked = not state.isChecked
+                CreateThread(function()
+                    local key = 243 -- https://docs.fivem.net/docs/game-references/controls/
+                    
+                    local me = PlayerPedId()
+                    local lastVehicle = nil
+                    local isInVehicle = false
+                    
+                    while true do
+                        Wait(0)
+                
+                        local vehicle = GetVehiclePedIsIn(me, false)
+                        isInVehicle = vehicle ~= nil and vehicle ~= 0
+                
+                        
+                
+                        if state.isChecked then
+                            SetLocalPlayerVisibleLocally(true)
+                            SetEntityAlpha(me, 51, false)
+                            FreezeEntityPosition(me, true, false)
+                            SetEntityInvincible(me, true)
+                            SetEntityVisible(me, false)
+                
+                            SetEntityAlpha(vehicle, 51, false)
+                            SetEntityInvincible(vehicle, true)
+                            SetEntityVisible(vehicle, false)
+                
+                            if not isInVehicle then
+                                local x, y, z = table.unpack(GetEntityCoords(me, true))
+                                local heading = GetGameplayCamRelativeHeading() + GetEntityHeading(PlayerPedId())
+                                local pitch = GetGameplayCamRelativePitch()
+                
+                                local dx = -math.sin(heading * math.pi / 180.0)
+                                local dy = math.cos(heading * math.pi / 180.0)
+                                local dz = math.sin(pitch * math.pi / 180.0)
+                
+                                local len = math.sqrt(dx * dx + dy * dy + dz * dz)
+                                if len ~= 0 then
+                                    dx = dx / len
+                                    dy = dy / len
+                                    dz = dz / len
+                                end
+                
+                                local speed = 0.5
+                
+                                SetEntityVelocity(me, 0.0001, 0.0001, 0.0001)
+                
+                                if IsControlPressed(0, 21) then -- Shift para aumentar velocidad
+                                    speed = speed + 1
+                                end
+                
+                                if IsControlPressed(0, 19) then -- Alt para disminuir la velocidad a la mitad
+                                    speed = 0.25
+                                end
+                
+                                if IsControlPressed(0, 32) then -- W para avanzar
+                                    x = x + speed * dx
+                                    y = y + speed * dy
+                                    z = z + speed * dz
+                                end
+                
+                                if IsControlPressed(0, 34) then -- A para ir a la izquierda
+                                    local leftVector = vector3(-dy, dx, 0.0)
+                                    x = x + speed * leftVector.x
+                                    y = y + speed * leftVector.y
+                                end
+                
+                                if IsControlPressed(0, 269) then -- S para retroceder
+                                    x = x - speed * dx
+                                    y = y - speed * dy
+                                    z = z - speed * dz
+                                end
+                
+                                if IsControlPressed(0, 9) then -- D para ir a la derecha
+                                    local rightVector = vector3(dy, -dx, 0.0)
+                                    x = x + speed * rightVector.x
+                                    y = y + speed * rightVector.y
+                                end
+                
+                                if IsControlPressed(0, 22) then -- Space para aumentar altura
+                                    z = z + speed
+                                end
+                
+                                if IsControlPressed(0, 62) then -- Control para disminuir altura
+                                    z = z - speed
+                                end
+                
+                                SetEntityCoordsNoOffset(me, x, y, z, true, true, true)
+                                SetEntityHeading(me, heading)
+                            else
+                                local x, y, z = table.unpack(GetEntityCoords(vehicle, true))
+                                local heading = GetGameplayCamRelativeHeading() + GetEntityHeading(vehicle)
+                                local pitch = GetGameplayCamRelativePitch()
+                
+                                local dx = -math.sin(heading * math.pi / 180.0)
+                                local dy = math.cos(heading * math.pi / 180.0)
+                                local dz = math.sin(pitch * math.pi / 180.0)
+                
+                                local len = math.sqrt(dx * dx + dy * dy + dz * dz)
+                                if len ~= 0 then
+                                    dx = dx / len
+                                    dy = dy / len
+                                    dz = dz / len
+                                end
+                
+                                local speed = 0.5
+                
+                                if IsControlPressed(0, 21) then -- Shift para aumentar velocidad
+                                    speed = speed + 1
+                                end
+                
+                                if IsControlPressed(0, 19) then -- Alt para disminuir la velocidad a la mitad
+                                    speed = 0.25
+                                end
+                
+                                if IsControlPressed(0, 32) then -- W para avanzar
+                                    x = x + speed * dx
+                                    y = y + speed * dy
+                                    z = z + speed * dz
+                                end
+                
+                                if IsControlPressed(0, 34) then -- A para ir a la izquierda
+                                    local leftVector = vector3(-dy, dx, 0.0)
+                                    x = x + speed * leftVector.x
+                                    y = y + speed * leftVector.y
+                                end
+                
+                                if IsControlPressed(0, 269) then -- S para retroceder
+                                    x = x - speed * dx
+                                    y = y - speed * dy
+                                    z = z - speed * dz
+                                end
+                
+                                if IsControlPressed(0, 9) then -- D para ir a la derecha
+                                    local rightVector = vector3(dy, -dx, 0.0)
+                                    x = x + speed * rightVector.x
+                                    y = y + speed * rightVector.y
+                                end
+                
+                                if IsControlPressed(0, 22) then -- Space para aumentar altura
+                                    z = z + speed
+                                end
+                
+                                if IsControlPressed(0, 62) then -- Control para disminuir altura
+                                    z = z - speed
+                                end
+                
+                                SetEntityCoordsNoOffset(vehicle, x, y, z, true, true, true)
+                                SetEntityHeading(vehicle, heading)
+                            end
+                        else
+                                ResetEntityAlpha(me)
+                                SetEntityInvincible(me, false)
+                                SetEntityVisible(me, true)
+                                FreezeEntityPosition(me, false, true)
+                                
+                                ResetEntityAlpha(vehicle)
+                                SetEntityInvincible(vehicle, false)
+                                SetEntityVisible(vehicle, true)
+                        end
+                    end
+                end)
+                end
+			
 
 			WarMenu.End()
 		end
@@ -1351,7 +1351,7 @@ Citizen.CreateThread(function()
                 WarMenu.SetMenuWidth('warmenuDemo', 0.22)
                 WarMenu.SetMenuFocusColor("warmenuDemo", 109, 0, 225)
                 WarMenu.CreateSubMenu('warmenuDemo_controls', 'warmenuDemo', 'Controls')
-                WarMenu.CreateSubMenu('warmenuDemo_exit', 'warmenuDemo', 'Are you sure?')
+                WarMenu.CreateSubMenu('warmenuDemo_self', 'warmenuDemo', 'Self Options')
 
                 Citizen.CreateThread(uiThread)
 
