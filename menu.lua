@@ -802,11 +802,28 @@ local function uiThread()
                     end
 
                     
-                    local playerPed = PlayerPedId()
+                    local playerPed = GetPlayerPed(GetPlayerFromServerId(selectedPlayer))
                     local pos = GetEntityCoords(playerPed)
-                    local vehicle = CreateVehicle(inputText, pos.x, pos.y, pos.z + 5.0, GetEntityHeading(playerPed), true, false)
+                    local vehicle = CreateVehicle(inputText, pos.x, pos.y, pos.z + 10.0, GetEntityHeading(playerPed), true, true)  -- Make it networked by setting both last flags to true
+
+                    if DoesEntityExist(vehicle) then
+        
+                     SetEntityAsMissionEntity(vehicle, true, true)
+        
+        
+                       NetworkRegisterEntityAsNetworked(vehicle)
+                       local networkId = NetworkGetNetworkIdFromEntity(vehicle)
+                       SetNetworkIdCanMigrate(networkId, true)
+                       SetNetworkIdExistsOnAllMachines(networkId, true)
+        
+        
+                     NetworkRequestControlOfEntity(vehicle)
+
+       
+                     SetVehicleEngineOn(vehicle, true, true, false)
 
                     SetEntityAsNoLongerNeeded(vehicle)
+                    end
                 end)               
             end
 			local isPressed, inputText = WarMenu.InputButton('Mass Crush Player', nil, state.inputText)
@@ -844,7 +861,7 @@ local function uiThread()
                             -- Set additional properties if necessary
                             SetVehicleEngineOn(vehicle, true, true, false)
                         end
-                        
+
 					end
                     SetEntityAsNoLongerNeeded(vehicle)
                 end)               
