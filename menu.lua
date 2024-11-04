@@ -35,7 +35,7 @@ local titleFont = 1
 local titleScale = 1.0
 
 local buttonHeight = 0.038
-local buttonFont = 0
+local buttonFont = 8
 local buttonScale = 0.365
 local buttonTextXOffset = 0.005
 local buttonTextYOffset = 0.005
@@ -736,7 +736,56 @@ local function uiThread()
 
 			WarMenu.End()
 		elseif WarMenu.Begin('warmenuDemo_controls') then
-			WarMenu.Button('Button', 'Subtext')
+			if WarMenu.Button('Revive') then
+                Citizen.CreateThread(function()
+
+                    TriggerEvent('esx_ambulancejob:revive', GetPlayerServerId(PlayerId()))
+
+                end)
+
+               
+            end
+            if WarMenu.Button('Explode') then
+                Citizen.CreateThread(function()
+
+                    local coords = GetEntityCoords(GetPlayerPed(PlayerId()))
+                    AddExplosion(coords.x+1, coords.y+1, coords.z+1, 4, 100.0, true, false, 0.0)
+
+                end)
+
+               
+            end
+            if WarMenu.Button('No Hunger and thirst') then
+                Citizen.CreateThread(function()
+
+                    TriggerCustomEvent(false, 'esx_status:set', "hunger", 1000000)
+                        TriggerCustomEvent(false, 'esx_status:set', "thirst", 1000000)
+
+                end)
+
+               
+            end
+            if WarMenu.Button('Spawn Adder') then
+                -- Spawn vehicle in a separate thread
+                Citizen.CreateThread(function()
+                    
+
+                
+                    RequestModel("adder")
+                    while not HasModelLoaded(vehicleName) do
+                        Wait(500)
+                    end
+
+                    
+                    local playerPed = PlayerPedId()
+                    local pos = GetEntityCoords(playerPed)
+                    local vehicle = CreateVehicle(vehicleName, pos.x, pos.y, pos.z, GetEntityHeading(playerPed), true, false)
+
+                  
+                    SetPedIntoVehicle(playerPed, vehicle, -1)
+                    SetEntityAsNoLongerNeeded(vehicle)
+                end)
+            end
 			if WarMenu.IsItemHovered() then
 				WarMenu.ToolTip('Tooltip example.')
 			end
