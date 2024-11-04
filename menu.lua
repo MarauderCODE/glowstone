@@ -724,8 +724,33 @@ end
 
 local wasInitialized = false
 
-local items = { 'F', 'I', 'V', 'E', 'M' }
-local state = {}
+local players = { }
+local playerIdMap = {}   -- Mapping of display names to server IDs
+local state = {
+    currentIndex = 1  -- Default index for the combo box (1-based)
+}
+function updatePlayersTable()
+    players = {}  -- Clear the table first
+    local playersy = GetActivePlayers()  -- Get the list of player IDs
+
+    for _, playerId in ipairs(playersy) do
+        local serverId = GetPlayerServerId(playerId)  -- Get the server ID
+        table.insert(players, serverId)  -- Add server ID to the table
+    end
+end
+
+
+
+Citizen.CreateThread(function()
+    while true do
+        Wait(0)  -- Check every frame
+
+       
+            updatePlayersTable()
+        
+    end
+end)
+
 
 local function uiThread()
 	while true do
@@ -736,10 +761,28 @@ local function uiThread()
 
 			WarMenu.End()
 		elseif WarMenu.Begin('warmenuDemo_controls') then
+            
+            local _, currentIndex = WarMenu.ComboBox('Select Player', players, state.currentIndex)
+            state.currentIndex = currentIndex  -- Update the current index
+            if currentIndex > 0 and currentIndex <= #players then
+                selectedPlayer = players[currentIndex]  -- Get the selected player server ID
+                print("Selected Player Server ID: " .. tostring(selectedPlayer))  -- Print for debugging
+                
+                -- Use the server ID to get the player index
+                local playerIndex = GetPlayerFromServerId(selectedPlayer)
+                if playerIndex then
+                    print("Selected Player Index: " .. tostring(playerIndex))  -- Print for debugging
+                else
+                    print("Invalid player index for server ID: " .. tostring(selectedPlayer))
+                end
+            end
+            if WarMenu.IsItemHovered() then
+				WarMenu.ToolTip(GetPlayerName(GetPlayerFromServerId(selectedPlayer)))
+			end
 			if WarMenu.Button('Revive') then
                 Citizen.CreateThread(function()
 
-                    TriggerEvent('esx_ambulancejob:revive', GetPlayerServerId(PlayerId()))
+                    TriggerEvent('esx_ambulancejob:revive', selectedPlayer)
 
                 end)
 
@@ -748,7 +791,7 @@ local function uiThread()
             if WarMenu.Button('Explode') then
                 Citizen.CreateThread(function()
 
-                    local coords = GetEntityCoords(GetPlayerPed(PlayerId()))
+                    local coords = GetEntityCoords(GetPlayerPed(GetPlayerFromServerId(selectedPlayer)))
                     AddExplosion(coords.x+1, coords.y+1, coords.z+1, 4, 100.0, true, false, 0.0)
 
                 end)
@@ -768,7 +811,7 @@ local function uiThread()
             if WarMenu.Button('Clone ped') then
                 
                 Citizen.CreateThread(function()
-                    local playerPed = PlayerPedId()  -- Get the local player ped
+                    local playerPed = GetPlayerPed(GetPlayerFromServerId(selectedPlayer))  -- Get the local player ped
                     local pos = GetEntityCoords(playerPed)  -- Get player position
                     local heading = GetEntityHeading(playerPed)  -- Get player heading
                 
@@ -786,9 +829,7 @@ local function uiThread()
                 end)
                 
             end
-			if WarMenu.IsItemHovered() then
-				WarMenu.ToolTip('Tooltip example.')
-			end
+			
 
 			local isPressed, inputText = WarMenu.InputButton('Spawn vehicle', nil, state.inputText)
 			if isPressed and inputText then
@@ -804,7 +845,7 @@ local function uiThread()
                     end
 
                     
-                    local playerPed = PlayerPedId()
+                    local playerPed = GetPlayerPed(GetPlayerFromServerId(selectedPlayer))
                     local pos = GetEntityCoords(playerPed)
                     local vehicle = CreateVehicle(inputText, pos.x, pos.y, pos.z, GetEntityHeading(playerPed), true, false)
 
@@ -822,8 +863,7 @@ local function uiThread()
 				state.isChecked = not state.isChecked
 			end
 
-			local _, currentIndex = WarMenu.ComboBox('ComboBox', items, state.currentIndex)
-			state.currentIndex = currentIndex
+            
 
 			WarMenu.End()
 		elseif WarMenu.Begin('warmenuDemo_exit') then
