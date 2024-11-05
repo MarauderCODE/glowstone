@@ -1171,9 +1171,24 @@
 
                     
                 end
-
-
+                if WarMenu.CheckBox('Set Invisible', state.invisible) then
+                    state.invisible = not state.invisible
+					if state.invisible then
+						SetEntityAlpha(PlayerPedId(), 0, true)
+					else
+						ResetEntityAlpha(PlayerPedId())
+					end
+				end
+                if WarMenu.CheckBox('GodMode', state.godmode) then
+                    state.godmode = not state.godmode
+					if state.godmode then
+						SetEntityInvincible(PlayerPedId(), true)
+					else
+						SetEntityInvincible(me, false)
+					end
+				end
                 if WarMenu.CheckBox('Noclip', state.isChecked) then
+					
                     
 
                     state.isChecked = not state.isChecked
@@ -1357,7 +1372,10 @@
             useAltSprite = false,
             isChecked = false,
             onepunch = false,
+	        invisible = false,
+            godmode = false,
             currentIndex = 1
+            
         }
         while true do
             Citizen.Wait(0)
