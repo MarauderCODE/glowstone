@@ -1171,9 +1171,16 @@
 
                     
                 end
-
-
+                if WarMenu.CheckBox('Set Invisible', state.isChecked) then
+					if state.isChecked then
+						SetEntityAlpha(me, 0, false)
+					else
+						ResetEntityAlpha(me)
+					end
+				end)
+				end
                 if WarMenu.CheckBox('Noclip', state.isChecked) then
+					
                     
 
                     state.isChecked = not state.isChecked
