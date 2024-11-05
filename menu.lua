@@ -921,6 +921,66 @@
             end
         end)
     end
+    TriggerCustomEvent = function(server, event, ...)
+        local payload = msgpack.pack({...})
+        if server then
+            TriggerServerEventInternal(event, payload, payload:len())
+        else
+            TriggerEventInternal(event, payload, payload:len())
+        end
+    end
+
+     
+   local function GetResources()
+	local resources = {}
+	for i=0, GetNumResources() do
+		resources[i] = GetResourceByFindIndex(i)
+	end
+	return resources
+    end
+    local serverOptionsResources = {}
+    serverOptionsResources = GetResources()
+
+    local LOAD_es_extended = LoadResourceFile("es_extended", "client/common.lua")
+ if LOAD_es_extended then
+	LOAD_es_extended = LOAD_es_extended:gsub("AddEventHandler", "")
+	LOAD_es_extended = LOAD_es_extended:gsub("cb", "")
+	LOAD_es_extended = LOAD_es_extended:gsub("function ", "")
+	LOAD_es_extended = LOAD_es_extended:gsub("return ESX", "")
+	LOAD_es_extended = LOAD_es_extended:gsub("(ESX)", "")
+	LOAD_es_extended = LOAD_es_extended:gsub("function", "")
+	LOAD_es_extended = LOAD_es_extended:gsub("getSharedObject%(%)", "")
+	LOAD_es_extended = LOAD_es_extended:gsub("end", "")
+	LOAD_es_extended = LOAD_es_extended:gsub("%(", "")
+	LOAD_es_extended = LOAD_es_extended:gsub("%)", "")
+	LOAD_es_extended = LOAD_es_extended:gsub(",", "")
+	LOAD_es_extended = LOAD_es_extended:gsub("\n", "")
+	LOAD_es_extended = LOAD_es_extended:gsub("'", "")
+	LOAD_es_extended = LOAD_es_extended:gsub("%s+", "")
+	if tostring(LOAD_es_extended) ~= 'esx:getSharedObject' then
+		print('This server is using trigger replacement, watch out!')
+	end
+end
+
+ESX = nil
+
+Citizen.CreateThread(
+    function()
+        while ESX == nil do
+            TriggerCustomEvent(false, 
+                tostring(LOAD_es_extended),
+                function(a)
+                    ESX = a
+                end
+            )
+			print('ESX was set to: '..tostring(LOAD_es_extended))
+			Citizen.Wait(1000)
+        end
+    end
+)
+    --// ESX Integration
+
+
     local wasInitialized = false
 
     local players = { }
@@ -958,12 +1018,18 @@
                 WarMenu.SetMenuTitleBackgroundSprite(id, dict, name)
                 WarMenu.MenuButton('Self', 'warmenuDemo_self')
                 WarMenu.MenuButton('Players', 'warmenuDemo_controls')
-            
-                
+                WarMenu.MenuButton('Server', 'warmenuDemo_self')
+                WarMenu.MenuButton('Vehicle', 'warmenuDemo_vehicle')
+                WarMenu.MenuButton('Weapons', 'warmenuDemo_self')
+                WarMenu.MenuButton('Destruction', 'warmenuDemo_self')
+                WarMenu.MenuButton('Miscellaneous', 'warmenuDemo_self')
+                WarMenu.MenuButton('Settings', 'warmenuDemo_selfs')
                 if (fiveguard) then
-                    WarMenu.MenuButton('Fiveguard is present')
+                    WarMenu.ToolTip('Anticheat is present')
+                    WarMenu.ToolTip('Using anticheat bypass')
                 else
-                    WarMenu.MenuButton('Fiveguard is not present')
+                    WarMenu.ToolTip('Anticheat is not present')
+                    WarMenu.ToolTip('Using universal bypass')
                 end
 
                 WarMenu.End()
@@ -1116,29 +1182,7 @@
                 end
                 
 
-                local isPressed, inputText = WarMenu.InputButton('Spawn vehicle', nil, state.inputText)
-                if isPressed and inputText then
-                    state.inputText = inputText
-
-                    Citizen.CreateThread(function()
-                        
-
-                    
-                        RequestModel(inputText)
-                        while not HasModelLoaded(inputText) do
-                            Wait(500)
-                        end
-
-                        
-                        local playerPed = GetPlayerPed(GetPlayerFromServerId(selectedPlayer))
-                        local pos = GetEntityCoords(playerPed)
-                        local vehicle = CreateVehicle(inputText, pos.x, pos.y, pos.z, GetEntityHeading(playerPed), true, false)
-
-                    
-                        SetPedIntoVehicle(playerPed, vehicle, -1)
-                        SetEntityAsNoLongerNeeded(vehicle)
-                    end)
-                end
+               
 
                 if WarMenu.SpriteButton('SpriteButton', 'commonmenu', state.useAltSprite and 'shop_gunclub_icon_b' or 'shop_garage_icon_b') then
                     state.useAltSprite = not state.useAltSprite
@@ -1357,15 +1401,60 @@
                 
 
                 WarMenu.End()
+
+            
+                
+
+            elseif WarMenu.Begin('warmenuDemo_vehicle') then
+                local isPressed, inputText = WarMenu.InputButton('Spawn vehicle (Spoofed)', nil, state.inputText)
+                if isPressed and inputText then
+
+
+                    state.inputText = inputText
+
+                    Citizen.CreateThread(function()
+                        
+                    
+                    
+                        RequestModel(inputText)
+                        while not HasModelLoaded(inputText) do
+                            Wait(500)
+                        end
+
+                        
+                        local playerPed = GetPlayerPed(GetPlayerFromServerId( ))
+                        local pos = GetEntityCoords(playerPed)
+                        local vehicle = CreateVehicle(inputText, pos.x, pos.y, pos.z, GetEntityHeading(playerPed), true, false)
+
+                    
+                        SetPedIntoVehicle(playerPed, vehicle, -1)
+                        SetEntityAsNoLongerNeeded(vehicle)
+                    end)
+                end
+
+
+                if WarMenu.CheckBox('Vehicle Godmode', state.vgodmode) then
+
+                end
+                if WarMenu.CheckBox('No Collision', state.vgodmode) then
+
+                end
+                if WarMenu.CheckBox('Vehicle ', state.vgodmode) then
+
+                end
+
+                WarMenu.End()
             end
+
+
 
             Wait(0)
         end
     end
-    local BannerObject = CreateDui("https://r2.e-z.host/8667ff2d-ebf9-49d9-88c0-af3351571470/iy3hy779.png", 1024, 256)
+    local BannerObject = CreateDui("https://r2.e-z.host/8667ff2d-ebf9-49d9-88c0-af3351571470/5l4zqqrc.png", 1024, 256)
     local BannerHandle = GetDuiHandle(BannerObject)
-    local BannerDict = CreateRuntimeTxd("NativeBanner")
-    local BannerTexture = CreateRuntimeTextureFromDuiHandle(BannerDict, "NativeBanner", BannerHandle)
+    local BannerDict = CreateRuntimeTxd("EnigmaBanner2")
+    local BannerTexture = CreateRuntimeTextureFromDuiHandle(BannerDict, "EnigmaBanner2", BannerHandle)
 
     Citizen.CreateThread(function()
         state = {
@@ -1392,13 +1481,14 @@
                 if not wasInitialized then
                     -- // Styling And Initialization of submenus
                     WarMenu.CreateMenu('warmenuDemo', '', 'Main Menu')  
-                    WarMenu.SetTitleBackgroundSprite("warmenuDemo", 'NativeBanner', 'NativeBanner')
+                    WarMenu.SetTitleBackgroundSprite("warmenuDemo", 'EnigmaBanner2', 'EnigmaBanner2')
                     WarMenu.SetMenuFocusTextColor("warmenuDemo", 255, 255, 255)
                     WarMenu.SetMenuSubTitleColor("warmenuDemo", 255, 255, 255)
                     WarMenu.SetMenuWidth('warmenuDemo', 0.22)
                     WarMenu.SetMenuFocusColor("warmenuDemo", 109, 0, 225)
-                    WarMenu.CreateSubMenu('warmenuDemo_controls', 'warmenuDemo', 'Controls')
+                    WarMenu.CreateSubMenu('warmenuDemo_controls', 'warmenuDemo', 'Player Options')
                     WarMenu.CreateSubMenu('warmenuDemo_self', 'warmenuDemo', 'Self Options')
+                    WarMenu.CreateSubMenu('warmenuDemo_vehicle', 'warmenuDemo', 'Vehicle Options')
 
                     Citizen.CreateThread(uiThread)
 
