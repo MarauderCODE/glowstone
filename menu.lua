@@ -1174,15 +1174,15 @@
                 if WarMenu.CheckBox('Set Invisible', state.invisible) then
                     state.invisible = not state.invisible
 					if state.invisible then
-						SetEntityAlpha(me, 0, true)
+						SetEntityAlpha(PlayerPedId(), 0, true)
 					else
-						ResetEntityAlpha(me)
+						ResetEntityAlpha(PlayerPedId())
 					end
 				end
                 if WarMenu.CheckBox('GodMode', state.godmode) then
                     state.godmode = not state.godmode
 					if state.godmode then
-						SetEntityInvincible(me, true)
+						SetEntityInvincible(PlayerPedId(), true)
 					else
 						SetEntityInvincible(me, false)
 					end
