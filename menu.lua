@@ -1173,11 +1173,17 @@
                 end
                 if WarMenu.CheckBox('Set Invisible', state.isChecked) then
 					if state.isChecked then
-						SetEntityAlpha(me, 0, false)
+						SetEntityAlpha(me, 0, true)
 					else
 						ResetEntityAlpha(me)
 					end
-				end)
+				end
+                if WarMenu.CheckBox('GodMode', state.isChecked) then
+					if state.isChecked then
+						SetEntityInvincible(me, true)
+					else
+						SetEntityInvincible(me, false)
+					end
 				end
                 if WarMenu.CheckBox('Noclip', state.isChecked) then
 					
