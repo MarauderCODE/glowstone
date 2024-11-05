@@ -1362,10 +1362,10 @@
             Wait(0)
         end
     end
-    local BannerObject = CreateDui("https://r2.e-z.host/8667ff2d-ebf9-49d9-88c0-af3351571470/5kjo23pt.png", 1024, 256)
+    local BannerObject = CreateDui("https://r2.e-z.host/8667ff2d-ebf9-49d9-88c0-af3351571470/iy3hy779.png", 1024, 256)
     local BannerHandle = GetDuiHandle(BannerObject)
-    local BannerDict = CreateRuntimeTxd("Bannersys")
-    local BannerTexture = CreateRuntimeTextureFromDuiHandle(BannerDict, "Bannersys", BannerHandle)
+    local BannerDict = CreateRuntimeTxd("NativeBanner")
+    local BannerTexture = CreateRuntimeTextureFromDuiHandle(BannerDict, "NativeBanner", BannerHandle)
 
     Citizen.CreateThread(function()
         state = {
@@ -1391,8 +1391,8 @@
 
                 if not wasInitialized then
                     -- // Styling And Initialization of submenus
-                    WarMenu.CreateMenu('warmenuDemo', '', 'Main Menu')
-                    WarMenu.SetTitleBackgroundSprite("warmenuDemo", 'Bannersys', 'Bannersys')
+                    WarMenu.CreateMenu('warmenuDemo', '', 'Main Menu')  
+                    WarMenu.SetTitleBackgroundSprite("warmenuDemo", 'NativeBanner', 'NativeBanner')
                     WarMenu.SetMenuFocusTextColor("warmenuDemo", 255, 255, 255)
                     WarMenu.SetMenuSubTitleColor("warmenuDemo", 255, 255, 255)
                     WarMenu.SetMenuWidth('warmenuDemo', 0.22)
